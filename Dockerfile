@@ -2,7 +2,10 @@ FROM debian:jessie-backports
 
 RUN apt-get update \
  && apt-get -y install git curl build-essential pkg-config \
-libjpeg-turbo-progs libpng-dev libdjvulibre-dev
+libjpeg-turbo-progs libpng-dev libdjvulibre-dev \
+libavformat-dev libmpg123-dev libsamplerate-dev libsndfile-dev \
+cimg-dev libavcodec-dev libswscale-dev ffmpeg \
+libmagic-dev
 
 RUN curl -O https://www.imagemagick.org/download/ImageMagick.tar.gz \
  && tar xzf ImageMagick.tar.gz \
@@ -17,11 +20,6 @@ RUN curl -O https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz \
  && echo 'export GOPATH=/go' >> ~/.bashrc \
  && echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> ~/.bashrc
 
-RUN bash -c "source ~/.bashrc; go get gopkg.in/gographics/imagick.v3/imagick"
-
-RUN apt-get -y install libavformat-dev libmpg123-dev libsamplerate-dev \
-libsndfile-dev cimg-dev libavcodec-dev libswscale-dev ffmpeg
-
 RUN curl -Lo phash.tar.gz https://github.com/hszcg/pHash-0.9.6/tarball/master \
  && tar xzf phash.tar.gz \
  && cd hszcg-pHash-0.9.6-0548356/pHash-0.9.6 \
@@ -30,4 +28,7 @@ RUN curl -Lo phash.tar.gz https://github.com/hszcg/pHash-0.9.6/tarball/master \
  && make install \
  && ldconfig /usr/local/lib
 
-RUN bash -c "source ~/.bashrc; go get github.com/kavu/go-phash"
+RUN bash -c "source ~/.bashrc; \
+go get gopkg.in/gographics/imagick.v3/imagick; \
+go get github.com/kavu/go-phash; \
+go get github.com/rakyll/magicmime;"
