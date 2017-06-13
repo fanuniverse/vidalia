@@ -4,12 +4,13 @@ import (
     "os"
     "fmt"
     "math"
+    "errors"
     "gopkg.in/gographics/imagick.v3/imagick"
 )
 
 var Versions = map[string]uint {
-	"thumbnail": 300,
-	"preview": 1280,
+    "thumbnail": 300,
+    "preview": 1280,
 }
 
 var AnimatedVersions = map[string]string {
@@ -19,20 +20,21 @@ var AnimatedVersions = map[string]string {
 }
 
 func (image *Image) generateVersions(wand *imagick.MagickWand) (err error) {
-    iWidth := wand.GetImageWidth()
-    iHeight := wand.GetImageHeight()
-    ratio := float64(iWidth) / float64(iHeight)
+    if image.width == 0 || image.height == 0 {
+        return errors.New("Image struct doesn't have width and height set.")
+    }
 
-    for version, vWidth := range Versions {
-        // TODO: parse the MIME type
-        vPath := fmt.Sprintf("test/images/%s.jpg", version)
+    ratio := float64(image.width) / float64(image.height)
 
-        if vWidth < iWidth {
-            vWand := wand.Clone()
-            err = image.createVersion(vWand, vWidth, ratio, vPath)
-            vWand.Destroy()
+    for version, width := range Versions {
+        path := fmt.Sprintf("test/images/%s.%s", version, image.ext)
+
+        if width < image.width {
+            versionWand := wand.Clone()
+            err = image.createVersion(versionWand, width, ratio, path)
+            versionWand.Destroy()
         } else {
-            err = image.linkToImage(vPath)
+            err = image.linkToImage(path)
         }
 
         if err != nil { break }

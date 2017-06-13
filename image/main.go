@@ -6,13 +6,20 @@ import (
 
 type Image struct {
     path string
+    ext string
     width uint
     height uint
     phash uint64
 }
 
-func NewImage(path string) *Image {
-    return &Image{path: path}
+func NewImage(path string) (*Image, error) {
+    ext, err := validImageExtension(path)
+
+    if err != nil {
+        return nil, err
+    } else {
+        return &Image{path: path, ext: ext}, nil
+    }
 }
 
 func (image *Image) Process() error {

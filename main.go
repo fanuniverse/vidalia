@@ -6,8 +6,13 @@ import (
 )
 
 func main() {
-    img := image.NewImage("test/images/small.jpg")
-    err := img.Process()
+    img, err := image.NewImage("test/images/small.jpg")
+
+    if err != nil {
+        panic(err)
+    }
+
+    err = img.Process()
 
     if err != nil {
         panic(err)
