@@ -2,11 +2,16 @@ package main
 
 import (
     "fmt"
+    "path"
     "vidalia/image"
+    "vidalia/config"
 )
 
 func main() {
-    img, err := image.NewImage("test/images/small.jpg")
+    cachePath := path.Join(config.CacheDir, "r4nd0mc4ch357r1n6.jpg")
+    var imgId uint = 23
+
+    img, err := image.NewImage(cachePath, imgId)
 
     if err != nil {
         panic(err)

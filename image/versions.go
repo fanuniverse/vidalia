@@ -1,8 +1,6 @@
 package image
 
 import (
-    "os"
-    "fmt"
     "math"
     "errors"
     "gopkg.in/gographics/imagick.v3/imagick"
@@ -27,14 +25,10 @@ func (image *Image) generateVersions(wand *imagick.MagickWand) (err error) {
     ratio := float64(image.width) / float64(image.height)
 
     for version, width := range Versions {
-        path := fmt.Sprintf("test/images/%s.%s", version, image.ext)
-
         if width < image.width {
-            versionWand := wand.Clone()
-            err = image.createVersion(versionWand, width, ratio, path)
-            versionWand.Destroy()
+            err = image.createVersion(wand, version, width, ratio)
         } else {
-            err = image.linkToImage(path)
+            err = image.linkVersionToImage(version)
         }
 
         if err != nil { break }
@@ -44,19 +38,19 @@ func (image *Image) generateVersions(wand *imagick.MagickWand) (err error) {
 }
 
 func (image *Image) createVersion(wand *imagick.MagickWand,
-        width uint, ratio float64, path string) error {
+        version string, width uint, ratio float64) (err error) {
+    path := image.versionStoragePath(version)
     height := uint(math.Floor(float64(width) * ratio))
 
-    err := wand.ResizeImage(width, height, imagick.FILTER_UNDEFINED)
+    versionWand := wand.Clone()
+    defer versionWand.Destroy()
+
+    err = versionWand.ResizeImage(width, height, imagick.FILTER_UNDEFINED)
     if err != nil { return err }
 
-    err = wand.SetImageCompressionQuality(95)
+    err = versionWand.SetImageCompressionQuality(95)
     if err != nil { return err }
 
-    err = wand.WriteImage(path)
+    err = versionWand.WriteImage(path)
     return err
-}
-
-func (image *Image) linkToImage(path string) error {
-    return os.Link(image.path, path)
 }

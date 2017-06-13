@@ -5,21 +5,26 @@ import (
 )
 
 type Image struct {
+    // Storage
     path string
     ext string
+    id uint
+    // Metadata
     width uint
     height uint
     phash uint64
 }
 
-func NewImage(path string) (*Image, error) {
+func NewImage(path string, id uint) (*Image, error) {
     ext, err := validImageExtension(path)
+    if err != nil { return nil, err }
 
-    if err != nil {
-        return nil, err
-    } else {
-        return &Image{path: path, ext: ext}, nil
-    }
+    image := Image{path: path, ext: ext, id: id}
+
+    err = image.moveCachedToStorage()
+    if err != nil { return nil, err }
+
+    return &image, nil
 }
 
 func (image *Image) Process() error {
