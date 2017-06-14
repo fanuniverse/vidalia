@@ -4,18 +4,8 @@ import (
     "math"
     "errors"
     "gopkg.in/gographics/imagick.v3/imagick"
+    "vidalia/config"
 )
-
-var Versions = map[string]uint {
-    "thumbnail": 300,
-    "preview": 1280,
-}
-
-var AnimatedVersions = map[string]string {
-    "mp4": "rendered.mp4",
-    "webm": "rendered.webm",
-    "poster": "poster.jpg",
-}
 
 func (image *Image) generateVersions(wand *imagick.MagickWand) (err error) {
     if image.width == 0 || image.height == 0 {
@@ -24,7 +14,7 @@ func (image *Image) generateVersions(wand *imagick.MagickWand) (err error) {
 
     ratio := float64(image.width) / float64(image.height)
 
-    for version, width := range Versions {
+    for version, width := range config.ImageVersions {
         if width < image.width {
             err = image.createVersion(wand, version, width, ratio)
         } else {

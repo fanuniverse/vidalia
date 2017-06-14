@@ -4,21 +4,14 @@ import (
     "fmt"
     "errors"
     "github.com/rakyll/magicmime"
+    "vidalia/config"
 )
-
-/* Quick check to validate file validity and
- * ensure consistent extensions (no .jpeg and .jpg) */
-var AllowedExtensions = map[string]string {
-    "image/png": "png",
-    "image/jpeg": "jpg",
-    "image/gif": "gif",
-}
 
 func validImageExtension(path string) (ext string, err error) {
     mime, err := imageMime(path)
     if err != nil { return "", err }
 
-    if ext, ok := AllowedExtensions[mime]; ok {
+    if ext, ok := config.AllowedExtensions[mime]; ok {
         return ext, nil
     } else {
         return "", errors.New(fmt.Sprintf("%s files are not allowed", mime))
