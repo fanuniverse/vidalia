@@ -8,8 +8,8 @@ import (
 )
 
 func main() {
-    cachePath := path.Join(config.CacheDir, "r4nd0mc4ch357r1n6.jpg")
-    var imgId uint = 23
+    cachePath := path.Join(config.CacheDir, "small.jpg")
+    var imgId uint = 24
 
     img, err := image.NewImage(cachePath, imgId)
 

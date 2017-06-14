@@ -1,7 +1,13 @@
 package config
 
+import (
+    "os"
+    "path"
+)
+
 const (
-    CacheDir = "test/hierarchy/cache"
-    StorageDir = "test/hierarchy/images"
     SourceFilename = "source"
 )
+
+var CacheDir = path.Join(os.Getenv("VIDALIA_PATH"), "cache")
+var StorageDir = path.Join(os.Getenv("VIDALIA_PATH"), "images")

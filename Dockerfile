@@ -31,4 +31,7 @@ RUN curl -Lo phash.tar.gz https://github.com/hszcg/pHash-0.9.6/tarball/master \
 RUN bash -c "source ~/.bashrc; \
 go get gopkg.in/gographics/imagick.v3/imagick; \
 go get github.com/kavu/go-phash; \
-go get github.com/rakyll/magicmime;"
+go get github.com/rakyll/magicmime; \
+go get github.com/stretchr/testify;"
+
+ENV VIDALIA_PATH /go/src/vidalia/test/hierarchy
