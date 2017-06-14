@@ -8,14 +8,14 @@ import (
 )
 
 func (image *Image) generateVersions(wand *imagick.MagickWand) (err error) {
-    if image.width == 0 || image.height == 0 {
+    if image.Width == 0 || image.Height == 0 {
         return errors.New("Image struct doesn't have width and height set.")
     }
 
-    ratio := float64(image.width) / float64(image.height)
+    ratio := float64(image.Width) / float64(image.Height)
 
     for version, width := range config.ImageVersions {
-        if width < image.width {
+        if width < image.Width {
             err = image.createVersion(wand, version, width, ratio)
         } else {
             err = image.linkVersionToImage(version)
@@ -30,7 +30,7 @@ func (image *Image) generateVersions(wand *imagick.MagickWand) (err error) {
 func (image *Image) createVersion(wand *imagick.MagickWand,
         version string, width uint, ratio float64) (err error) {
     path := image.versionStoragePath(version)
-    height := uint(math.Floor(float64(width) * ratio))
+    height := uint(math.Floor(float64(width) / ratio))
 
     versionWand := wand.Clone()
     defer versionWand.Destroy()

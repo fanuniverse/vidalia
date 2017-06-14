@@ -6,20 +6,20 @@ import (
 
 type Image struct {
     // Storage
-    path string
-    ext string
-    id uint
+    Path string
+    Ext string
+    Id uint
     // Metadata
-    width uint
-    height uint
-    phash uint64
+    Width uint
+    Height uint
+    Phash uint64
 }
 
 func NewImage(path string, id uint) (*Image, error) {
     ext, err := validImageExtension(path)
     if err != nil { return nil, err }
 
-    image := Image{path: path, ext: ext, id: id}
+    image := Image{Path: path, Ext: ext, Id: id}
 
     err = image.moveCachedToStorage()
     if err != nil { return nil, err }
@@ -34,7 +34,7 @@ func (image *Image) Process() error {
     wand := imagick.NewMagickWand()
     defer wand.Destroy()
 
-    err := wand.ReadImage(image.path)
+    err := wand.ReadImage(image.Path)
     if err != nil { return err }
 
     err = image.analyze(wand)

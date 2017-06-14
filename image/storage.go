@@ -8,12 +8,12 @@ import (
 )
 
 func (image *Image) storageDir() string {
-    return path.Join(config.StorageDir, fmt.Sprint(image.id))
+    return path.Join(config.StorageDir, fmt.Sprint(image.Id))
 }
 
 func (image *Image) versionStoragePath(version string) string {
     return path.Join(image.storageDir(),
-        fmt.Sprintf("%s.%s", version, image.ext))
+        fmt.Sprintf("%s.%s", version, image.Ext))
 }
 
 func (image *Image) moveCachedToStorage() (err error) {
@@ -21,15 +21,15 @@ func (image *Image) moveCachedToStorage() (err error) {
     if err != nil { return err }
 
     storagePath := path.Join(image.storageDir(),
-        fmt.Sprintf("%s.%s", config.SourceFilename, image.ext))
+        fmt.Sprintf("%s.%s", config.SourceFilename, image.Ext))
 
-    err = os.Rename(image.path, storagePath)
+    err = os.Rename(image.Path, storagePath)
     if err != nil { return err }
 
-    image.path = storagePath
+    image.Path = storagePath
     return nil
 }
 
 func (image *Image) linkVersionToImage(version string) error {
-    return os.Link(image.path, image.versionStoragePath(version))
+    return os.Link(image.Path, image.versionStoragePath(version))
 }

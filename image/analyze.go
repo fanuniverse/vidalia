@@ -6,11 +6,11 @@ import (
 )
 
 func (image *Image) analyze(wand *imagick.MagickWand) error {
-    image.width = wand.GetImageWidth()
-    image.height = wand.GetImageHeight()
+    image.Width = wand.GetImageWidth()
+    image.Height = wand.GetImageHeight()
 
-    imageHash, err := phash.ImageHashDCT(image.path)
-    image.phash = imageHash
+    imageHash, err := phash.ImageHashDCT(image.Path)
+    image.Phash = imageHash
 
     return err
 }

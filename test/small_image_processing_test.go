@@ -1,4 +1,4 @@
-package image
+package test
 
 import (
     "os"
@@ -6,6 +6,7 @@ import (
     "testing"
     "github.com/stretchr/testify/assert"
     "github.com/stretchr/testify/require"
+    "vidalia/image"
     "vidalia/config"
 )
 
@@ -14,11 +15,11 @@ func TestSmallImage(t *testing.T) {
     targetDir := path.Join(config.StorageDir, "24")
     target := path.Join(targetDir, "source.jpg")
 
-    image, err := NewImage(cached, 24)
+    img, err := image.NewImage(cached, 24)
 
     require.Nil(t, err)
-    assert.Equal(t, target, image.path,
-        "image.path should be updated with the storage location.")
+    assert.Equal(t, target, img.Path,
+        "image.Path should be updated with the storage location.")
 
     if _, err := os.Stat(cached); os.IsExist(err) {
         assert.Fail(t, "Cached file should be destroyed (moved)")
@@ -27,7 +28,7 @@ func TestSmallImage(t *testing.T) {
         assert.Fail(t, "Target file should exist")
     }
 
-    err = image.Process()
+    err = img.Process()
     require.Nil(t, err)
 
     /* Reset test image location for subsequent tests */
@@ -37,9 +38,9 @@ func TestSmallImage(t *testing.T) {
     }()
 
     /* Analysis test */
-    assert.Equal(t, uint(200), image.width)
-    assert.Equal(t, uint(198), image.height)
-    assert.Equal(t, uint64(13597467515327605323), image.phash)
+    assert.Equal(t, uint(200), img.Width)
+    assert.Equal(t, uint(198), img.Height)
+    assert.Equal(t, uint64(13597467515327605323), img.Phash)
 
     /* Version test */
     source, err := os.Stat(
