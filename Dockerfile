@@ -2,9 +2,8 @@ FROM debian:jessie-backports
 
 RUN apt-get update \
  && apt-get -y install git curl build-essential pkg-config \
-libjpeg-turbo-progs libpng-dev libdjvulibre-dev \
-libavformat-dev libmpg123-dev libsamplerate-dev libsndfile-dev \
-cimg-dev libavcodec-dev libswscale-dev ffmpeg \
+libjpeg-turbo-progs libpng-dev libdjvulibre-dev cimg-dev \
+libavformat-dev libavcodec-dev libswscale-dev ffmpeg \
 libmagic-dev
 
 RUN curl -O https://www.imagemagick.org/download/ImageMagick.tar.gz \
@@ -20,10 +19,10 @@ RUN curl -O https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz \
  && echo 'export GOPATH=/go' >> ~/.bashrc \
  && echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> ~/.bashrc
 
-RUN curl -Lo phash.tar.gz https://github.com/hszcg/pHash-0.9.6/tarball/master \
- && tar xzf phash.tar.gz \
- && cd hszcg-pHash-0.9.6-0548356/pHash-0.9.6 \
- && ./configure \
+RUN curl -LO https://github.com/westonplatter/phashion/raw/master/ext/phashion_ext/pHash-0.9.6.tar.gz \
+ && tar xzf pHash-0.9.6.tar.gz \
+ && cd pHash-0.9.6 \
+ && ./configure --enable-openmp --disable-audio-hash --disable-video-hash --with-pic \
  && make \
  && make install \
  && ldconfig /usr/local/lib

@@ -9,7 +9,7 @@ Inside the container:
 cd /go/src/vidalia
 
 # Test
-go test ./...
+go test ./test
 
 # Build and run
 go build
