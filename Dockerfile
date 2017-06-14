@@ -22,7 +22,7 @@ RUN curl -O https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz \
 RUN curl -LO https://github.com/westonplatter/phashion/raw/master/ext/phashion_ext/pHash-0.9.6.tar.gz \
  && tar xzf pHash-0.9.6.tar.gz \
  && cd pHash-0.9.6 \
- && ./configure --enable-openmp --disable-audio-hash --disable-video-hash --with-pic \
+ && ./configure CXXFLAGS="-pthread" --disable-audio-hash --disable-video-hash \
  && make \
  && make install \
  && ldconfig /usr/local/lib
@@ -31,6 +31,7 @@ RUN bash -c "source ~/.bashrc; \
 go get gopkg.in/gographics/imagick.v3/imagick; \
 go get github.com/kavu/go-phash; \
 go get github.com/rakyll/magicmime; \
-go get github.com/stretchr/testify;"
+go get github.com/stretchr/testify; \
+go get github.com/buger/jsonparser;"
 
 ENV VIDALIA_PATH /go/src/vidalia/test/hierarchy

@@ -6,8 +6,16 @@ import (
 )
 
 func (image *Image) analyze(wand *imagick.MagickWand) error {
-    image.Width = wand.GetImageWidth()
-    image.Height = wand.GetImageHeight()
+    if image.Ext == "gif" {
+        w, h, _, _, err := wand.GetImagePage()
+        if err != nil { return err }
+
+        image.Width = w
+        image.Height = h
+    } else {
+        image.Width = wand.GetImageWidth()
+        image.Height = wand.GetImageHeight()
+    }
 
     imageHash, err := phash.ImageHashDCT(image.Path)
     image.Phash = imageHash
