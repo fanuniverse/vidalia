@@ -1,6 +1,9 @@
+# vidalia
+
+## Development
+
 ```bash
-docker build -t vidalia .
-docker run --rm -it -v "$(pwd)":/go/src/vidalia vidalia
+docker-compose run vidalia
 ```
 
 Inside the container:
@@ -15,3 +18,8 @@ go test ./test
 go build
 ./vidalia
 ```
+
+## RabbitMQ
+
+Once the containers are up, you can access RabbitMQ's management UI
+by visiting `http://localhost:15672`.

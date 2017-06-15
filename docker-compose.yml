@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+
+  vidalia:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - rabbitmq
+    volumes:
+      - .:/go/src/vidalia
+    stdin_open: true
+    tty: true
+
+  rabbitmq:
+    image: rabbitmq:management
+    hostname: rabbit
+    volumes:
+      - /var/lib/fanuniverse/rabbitmq/data:/var/lib/rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
