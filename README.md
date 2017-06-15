@@ -36,12 +36,12 @@ Analyzed image properties are then published to the
 JSON object with the following properties:
 ```
 {
-  "Path":    (string)  path to the source.ext file in the images/ directory
-  "Ext":     (string)  image extension (.png/.jpg/.gif)
-  "Id":      (string)  unique image identifier
-  "Width":   (uint)    image width
-  "Height":  (uint)    image height
-  "Phash":   (uint64)  phash
+  "path":    (string)  path to the source.ext file in the images/ directory
+  "ext":     (string)  image extension (png/jpg/gif)
+  "id":      (string)  unique image identifier
+  "width":   (uint)    image width
+  "height":  (uint)    image height
+  "phash":   (uint64)  phash
 }
 ```
 

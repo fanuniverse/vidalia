@@ -6,38 +6,13 @@ import (
     "testing"
     "github.com/stretchr/testify/assert"
     "github.com/stretchr/testify/require"
-    "vidalia/image"
     "vidalia/config"
 )
 
 func TestSmallImage(t *testing.T) {
-    cached := path.Join(config.CacheDir, "small.jpg")
-    targetDir := path.Join(config.StorageDir, "24")
-    target := path.Join(targetDir, "source.jpg")
-
-    img, err := image.NewImage("small.jpg", "24")
-    require.Nil(t, err)
-
-
-    require.Nil(t, err)
-    assert.Equal(t, target, img.Path,
-        "image.Path should be updated with the storage location.")
-
-    if _, err := os.Stat(cached); os.IsExist(err) {
-        assert.Fail(t, "Cached file should be destroyed (moved)")
-    }
-    if _, err := os.Stat(target); os.IsNotExist(err) {
-        assert.Fail(t, "Target file should exist")
-    }
-
-    err = img.Process()
-    require.Nil(t, err)
-
-    /* Reset test image location for subsequent tests */
-    defer func() {
-        os.Rename(target, cached)
-        os.RemoveAll(targetDir)
-    }()
+    img := processOverAmqp(t, "small.jpg", "26")
+    assertStored(t, "small.jpg", "26", img)
+    defer cleanUpStored("small.jpg", "26", img)
 
     /* Analysis test */
     assert.Equal(t, uint(200), img.Width)
@@ -46,15 +21,15 @@ func TestSmallImage(t *testing.T) {
 
     /* Version test */
     source, err := os.Stat(
-        path.Join(config.StorageDir, "24/source.jpg"))
+        path.Join(config.StorageDir, "26/source.jpg"))
     require.Nil(t, err)
 
     preview, err := os.Stat(
-        path.Join(config.StorageDir, "24/preview.jpg"))
+        path.Join(config.StorageDir, "26/preview.jpg"))
     require.Nil(t, err)
 
     thumb, err := os.Stat(
-        path.Join(config.StorageDir, "24/thumbnail.jpg"))
+        path.Join(config.StorageDir, "26/thumbnail.jpg"))
     require.Nil(t, err)
 
     assert.True(t, os.SameFile(preview, source),

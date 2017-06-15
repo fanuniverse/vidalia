@@ -8,13 +8,13 @@ import (
 
 type Image struct {
     // Storage
-    Path string
-    Ext string
-    Id string
+    Path   string `json:"path"`
+    Ext    string `json:"ext"`
+    Id     string `json:"id"`
     // Metadata
-    Width uint
-    Height uint
-    Phash uint64
+    Width  uint   `json:"width"`
+    Height uint   `json:"height"`
+    Phash  uint64 `json:"phash"`
 }
 
 func NewImage(cachedFile, id string) (*Image, error) {

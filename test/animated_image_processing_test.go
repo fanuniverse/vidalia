@@ -1,41 +1,16 @@
 package test
 
 import (
-    "os"
     "path"
     "testing"
     "github.com/stretchr/testify/assert"
-    "github.com/stretchr/testify/require"
-    "vidalia/image"
     "vidalia/config"
 )
 
 func TestAnimatedImage(t *testing.T) {
-    cached := path.Join(config.CacheDir, "animated.gif")
-    targetDir := path.Join(config.StorageDir, "24")
-    target := path.Join(targetDir, "source.gif")
-
-    img, err := image.NewImage("animated.gif", "24")
-    require.Nil(t, err)
-
-    assert.Equal(t, target, img.Path,
-        "image.Path should be updated with the storage location.")
-
-    if _, err := os.Stat(cached); os.IsExist(err) {
-        assert.Fail(t, "Cached file should be destroyed (moved)")
-    }
-    if _, err := os.Stat(target); os.IsNotExist(err) {
-        assert.Fail(t, "Target file should exist")
-    }
-
-    err = img.Process()
-    require.Nil(t, err)
-
-    /* Reset test image location for subsequent tests */
-    defer func() {
-        os.Rename(target, cached)
-        os.RemoveAll(targetDir)
-    }()
+    img := processOverAmqp(t, "animated.gif", "24")
+    assertStored(t, "animated.gif", "24", img)
+    defer cleanUpStored("animated.gif", "24", img)
 
     /* Analysis test */
     assert.Equal(t, uint(500), img.Width)
