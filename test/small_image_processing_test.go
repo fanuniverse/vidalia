@@ -15,7 +15,9 @@ func TestSmallImage(t *testing.T) {
     targetDir := path.Join(config.StorageDir, "24")
     target := path.Join(targetDir, "source.jpg")
 
-    img, err := image.NewImage(cached, 24)
+    img, err := image.NewImage("small.jpg", "24")
+    require.Nil(t, err)
+
 
     require.Nil(t, err)
     assert.Equal(t, target, img.Path,

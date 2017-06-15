@@ -15,9 +15,9 @@ func TestAnimatedImage(t *testing.T) {
     targetDir := path.Join(config.StorageDir, "24")
     target := path.Join(targetDir, "source.gif")
 
-    img, err := image.NewImage(cached, 24)
-
+    img, err := image.NewImage("animated.gif", "24")
     require.Nil(t, err)
+
     assert.Equal(t, target, img.Path,
         "image.Path should be updated with the storage location.")
 

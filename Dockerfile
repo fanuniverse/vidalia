@@ -32,6 +32,8 @@ go get gopkg.in/gographics/imagick.v3/imagick; \
 go get github.com/kavu/go-phash; \
 go get github.com/rakyll/magicmime; \
 go get github.com/stretchr/testify; \
-go get github.com/buger/jsonparser;"
+go get github.com/buger/jsonparser; \
+go get github.com/streadway/amqp"
 
-ENV VIDALIA_PATH /go/src/vidalia/test/hierarchy
+ENV VIDALIA_PATH="/go/src/vidalia/test/hierarchy" \
+    AMQP_URI="amqp://guest:guest@rabbitmq:5672"

@@ -1,27 +1,83 @@
 package main
 
 import (
-    "fmt"
-    "path"
+    "log"
+    "time"
+    "github.com/streadway/amqp"
+    "github.com/buger/jsonparser"
+    "encoding/json"
     "vidalia/image"
     "vidalia/config"
 )
 
 func main() {
-    cachePath := path.Join(config.CacheDir, "small.jpg")
-    var imgId uint = 24
+    conn, err := amqp.Dial(config.AmqpUri)
+    if err != nil { log.Fatal(err) }
+    defer conn.Close()
 
-    img, err := image.NewImage(cachePath, imgId)
+    ch, err := conn.Channel()
+    if err != nil { log.Fatal(err) }
+    defer ch.Close()
 
-    if err != nil {
-        panic(err)
+    consume(ch)
+}
+
+func consume(ch *amqp.Channel) {
+    messages, _ := ch.Consume(
+        "image.process",
+        "",
+        false, /* auto ack */
+        false, /* exclusive */
+        false,
+        false, /* no wait */
+        nil)
+
+    for m := range messages {
+        processed, err := process(m.Body)
+        if err != nil {
+            log.Printf("Discarding %s, reason: %s\n", m.Body, err)
+            m.Reject(false)
+        } else {
+            reply, err := encodeImage(processed)
+            if err != nil {
+                log.Printf("Discarding %s, reason: %s\n", m.Body, err)
+                m.Reject(false)
+            } else {
+                _ = ch.Publish(
+                    "",
+                    "image.processed",
+                    false, /* mandatory */
+                    false, /* immediate */
+                    reply)
+
+                m.Ack(false)
+            }
+        }
     }
+}
+
+func process(message []byte) (*image.Image, error) {
+    id, err := jsonparser.GetInt(message, "id")
+    cachedFile, err := jsonparser.GetString(message, "file")
+    if err != nil { return nil, err }
+
+    img, err := image.NewImage(cachedFile, id)
+    if err != nil { return nil, err }
 
     err = img.Process()
+    if err != nil { return nil, err }
 
-    if err != nil {
-        panic(err)
-    } else {
-        fmt.Println(img)
-    }
+    return img, nil
+}
+
+func encodeImage(img *image.Image) (msg amqp.Publishing, err error) {
+    body, err := json.Marshal(img)
+    if err != nil { return msg, err }
+
+    return amqp.Publishing {
+        DeliveryMode:    amqp.Persistent,
+        Timestamp:       time.Now(),
+        ContentType:     "application/json",
+        Body:            body,
+    }, nil
 }

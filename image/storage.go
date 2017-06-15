@@ -8,7 +8,7 @@ import (
 )
 
 func (image *Image) storageDir() string {
-    return path.Join(config.StorageDir, fmt.Sprint(image.Id))
+    return path.Join(config.StorageDir, image.Id)
 }
 
 func (image *Image) versionStoragePath(version string) string {

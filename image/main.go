@@ -1,21 +1,24 @@
 package image
 
 import (
+    "path"
     "gopkg.in/gographics/imagick.v3/imagick"
+    "vidalia/config"
 )
 
 type Image struct {
     // Storage
     Path string
     Ext string
-    Id uint
+    Id string
     // Metadata
     Width uint
     Height uint
     Phash uint64
 }
 
-func NewImage(path string, id uint) (*Image, error) {
+func NewImage(cachedFile, id string) (*Image, error) {
+    path := path.Join(config.CacheDir, cachedFile)
     ext, err := validImageExtension(path)
     if err != nil { return nil, err }
 

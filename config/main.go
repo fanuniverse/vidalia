@@ -5,6 +5,8 @@ import (
     "path"
 )
 
+var AmqpUri = os.Getenv("AMQP_URI")
+
 /* We receive files that are located in the cache directory
  * and move them to storage, replacing the temporary file name
  * with SourceFilename and setting an extension that is appropriate
