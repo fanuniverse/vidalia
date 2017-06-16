@@ -5,7 +5,7 @@ services:
   vidalia:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-dev
     depends_on:
       - rabbitmq
     volumes:
