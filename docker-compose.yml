@@ -10,6 +10,9 @@ services:
       - rabbitmq
     volumes:
       - .:/go/src/vidalia
+    environment:
+      - VIDALIA_PATH=/go/src/vidalia/test/hierarchy
+      - AMQP_URI=amqp://guest:guest@rabbitmq:5672
     stdin_open: true
     tty: true
 
