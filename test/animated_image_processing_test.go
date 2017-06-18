@@ -15,7 +15,7 @@ func TestAnimatedImage(t *testing.T) {
     /* Analysis test */
     assert.Equal(t, uint(500), img.Width)
     assert.Equal(t, uint(280), img.Height)
-    assert.Equal(t, uint64(8330785626518358964), img.Phash)
+    assert.Equal(t, "111001110011100111001010110001110010000100011101000101110110100", img.Phash)
 
     /* Version test */
     webmW, webmH, codec := videoInfo(t,

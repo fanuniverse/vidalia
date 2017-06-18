@@ -14,7 +14,7 @@ type Image struct {
     // Metadata
     Width  uint   `json:"width"`
     Height uint   `json:"height"`
-    Phash  uint64 `json:"phash"`
+    Phash  string `json:"phash"`
 }
 
 func NewImage(cachedFile, id string) (*Image, error) {

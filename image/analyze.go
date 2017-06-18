@@ -1,6 +1,7 @@
 package image
 
 import (
+    "fmt"
     "gopkg.in/gographics/imagick.v3/imagick"
     "github.com/kavu/go-phash"
 )
@@ -18,7 +19,7 @@ func (image *Image) analyze(wand *imagick.MagickWand) error {
     }
 
     imageHash, err := phash.ImageHashDCT(image.Path)
-    image.Phash = imageHash
+    image.Phash = fmt.Sprintf("%b", imageHash)
 
     return err
 }

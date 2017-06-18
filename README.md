@@ -41,7 +41,7 @@ JSON object with the following properties:
   "id":      (string)  unique image identifier
   "width":   (uint)    image width
   "height":  (uint)    image height
-  "phash":   (uint64)  phash
+  "phash":   (string)  phash (binary string)
 }
 ```
 

@@ -15,7 +15,7 @@ func TestLargeImage(t *testing.T) {
     /* Analysis test */
     assert.Equal(t, uint(1920), img.Width)
     assert.Equal(t, uint(1080), img.Height)
-    assert.Equal(t, uint64(17518951010989296691), img.Phash)
+    assert.Equal(t, "1111001100011111110100010010000000000111011111001100110000110011", img.Phash)
 
     /* Version test */
     previewW, previewH := imageInfo(t,

@@ -28,6 +28,8 @@ RUN curl -LO https://github.com/westonplatter/phashion/raw/master/ext/phashion_e
 
 COPY ./vidalia /usr/bin/vidalia
 
-USER nobody
+RUN adduser --disabled-password --gecos '' vidalia
+
+USER vidalia
 
 CMD vidalia

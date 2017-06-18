@@ -17,7 +17,7 @@ func TestSmallImage(t *testing.T) {
     /* Analysis test */
     assert.Equal(t, uint(200), img.Width)
     assert.Equal(t, uint(198), img.Height)
-    assert.Equal(t, uint64(13597467515327605323), img.Phash)
+    assert.Equal(t, "1011110010110011111010001010100110101000000000111110101001001011", img.Phash)
 
     /* Version test */
     source, err := os.Stat(
