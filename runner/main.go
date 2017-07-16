@@ -12,10 +12,17 @@ import (
 
 func ObtainChannelConnection() (*amqp.Connection, *amqp.Channel) {
     conn, err := amqp.Dial(config.AmqpUri)
-    if err != nil { log.Fatal(err) }
+    for err != nil {
+        log.Printf("Cannot reach the AMQP broker. Retrying in 5 seconds...")
+
+        time.Sleep(5 * time.Second)
+        conn, err = amqp.Dial(config.AmqpUri)
+    }
 
     ch, err := conn.Channel()
     if err != nil { log.Fatal(err) }
+
+    log.Printf("Vidalia is ready to consume processing requests.")
 
     return conn, ch
 }
