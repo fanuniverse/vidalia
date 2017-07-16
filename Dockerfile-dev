@@ -1,4 +1,4 @@
-FROM debian:jessie-backports
+FROM debian:stretch-slim
 
 RUN apt-get update \
  && apt-get -y install git curl build-essential pkg-config \
@@ -9,12 +9,12 @@ libmagic-dev \
 
 RUN curl -O https://www.imagemagick.org/download/ImageMagick.tar.gz \
  && tar xf ImageMagick.tar.gz \
- && cd ImageMagick* \
- && ./configure \
+ && cd ImageMagick-7.0* \
+ && ./configure --with-magick-plus-plus=no --with-perl=no \
  && make \
  && make install \
  && cd .. \
- && rm -rv ImageMagick*
+ && rm -r ImageMagick-7.0*
 
 RUN curl -O https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz \
  && tar xf go1.8.3.linux-amd64.tar.gz \
@@ -30,7 +30,7 @@ RUN curl -LO https://github.com/westonplatter/phashion/raw/master/ext/phashion_e
  && make \
  && make install \
  && cd .. \
- && rm -rv pHash-0.9.6* \
+ && rm -r pHash-0.9.6* \
  && ldconfig /usr/local/lib
 
 RUN bash -c "source ~/.bashrc; \
