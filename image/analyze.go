@@ -19,7 +19,7 @@ func (image *Image) analyze(wand *imagick.MagickWand) error {
     }
 
     imageHash, err := phash.ImageHashDCT(image.Path)
-    image.Phash = fmt.Sprintf("%b", imageHash)
+    image.Phash = fmt.Sprintf("%064b", imageHash)
 
     return err
 }
