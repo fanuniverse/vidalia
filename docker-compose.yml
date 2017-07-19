@@ -17,7 +17,7 @@ services:
     tty: true
 
   rabbitmq:
-    image: rabbitmq:management
+    image: rabbitmq:3-management-alpine
     hostname: rabbit
     volumes:
       - /var/lib/fanuniverse/rabbitmq/data:/var/lib/rabbitmq
