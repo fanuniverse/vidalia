@@ -5,22 +5,8 @@ services:
   vidalia:
     build:
       context: .
-      dockerfile: Dockerfile-dev
-    depends_on:
-      - rabbitmq
+      dockerfile: Dockerfile
     volumes:
-      - .:/go/src/vidalia
-    environment:
-      - VIDALIA_PATH=/go/src/vidalia/test/hierarchy
-      - AMQP_URI=amqp://guest:guest@rabbitmq:5672
+      - .:/usr/src/vidalia
     stdin_open: true
     tty: true
-
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    hostname: rabbit
-    volumes:
-      - /var/lib/fanuniverse/rabbitmq/data:/var/lib/rabbitmq
-    ports:
-      - "15672:15672"
-      - "5672:5672"

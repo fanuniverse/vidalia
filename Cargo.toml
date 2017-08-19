@@ -1,0 +1,8 @@
+[package]
+name = "vidalia"
+version = "0.1.0"
+authors = ["little-bobby-tables"]
+
+[dependencies.magick_rust]
+git = "https://github.com/little-bobby-tables/magick-rust"
+branch = "magick-7"
