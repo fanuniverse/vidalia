@@ -7,6 +7,8 @@ authors = ["little-bobby-tables"]
 serde = "1.0"
 serde_json = "1.0"
 serde_derive = "1.0"
+iron = "0.5.1"
+multipart = "0.13"
 
 [dependencies.magick_rust]
 git = "https://github.com/nlfiedler/magick-rust"

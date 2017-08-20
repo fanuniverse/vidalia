@@ -1,10 +1,13 @@
+extern crate iron;
+extern crate multipart;
+
 extern crate serde;
 extern crate serde_json;
-
-#[macro_use]
-extern crate serde_derive;
+#[macro_use] extern crate serde_derive;
 
 extern crate magick_rust;
+
+mod server;
 
 use magick_rust::{MagickWand, magick_wand_genesis, magick_wand_terminus};
 
@@ -12,6 +15,8 @@ mod types;
 use types::{Manifest, Transform};
 
 fn main() {
+    server::run();
+
     magick_wand_genesis();
 
     process(get_manifest().unwrap()).expect("oops");
