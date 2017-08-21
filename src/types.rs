@@ -1,6 +1,5 @@
 #[derive(Deserialize, Debug)]
 pub struct Manifest {
-    pub file: String,
     pub transforms: Vec<Transform>
 }
 
@@ -13,4 +12,8 @@ pub enum Transform {
     },
     #[serde(rename = "webm")]
     WebM
+}
+
+pub struct ProcessingResult {
+    pub image: Vec<u8>
 }

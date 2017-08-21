@@ -9,44 +9,19 @@ extern crate magick_rust;
 
 mod server;
 
-use magick_rust::{MagickWand, magick_wand_genesis, magick_wand_terminus};
+use magick_rust::{magick_wand_genesis, magick_wand_terminus};
 
 mod types;
-use types::{Manifest, Transform};
+use types::{Manifest, ProcessingResult};
 
 fn main() {
-    server::run();
+    server::run(do_stuff);
 
     magick_wand_genesis();
-
-    process(get_manifest().unwrap()).expect("oops");
 
     magick_wand_terminus();
 }
 
-fn get_manifest() -> Result<Manifest, serde_json::Error> {
-    let data = r#"{
-                    "file": "small.jpg",
-                    "transforms": [
-                      { "kind": "downsize", "width": 100 }
-                    ]
-                  }"#;
-
-    serde_json::from_str(data)
-}
-
-fn process(manifest: Manifest) -> Result<(), &'static str> {
-    for t in manifest.transforms {
-        match t {
-            Transform::Downsize { width } => {
-                let wand = MagickWand::new();
-                wand.read_image(&manifest.file)?;
-                wand.fit(width, width);
-                wand.write_image("out.jpg")?;
-            }
-            _ => {}
-        }
-    }
-
-    Ok(())
+fn do_stuff(_manifest: Manifest, blob: Vec<u8>) -> ProcessingResult {
+    ProcessingResult { image: blob }
 }
