@@ -7,21 +7,20 @@ extern crate serde_json;
 
 extern crate magick_rust;
 
+pub mod types;
 mod server;
+mod transforms;
 
-use magick_rust::{magick_wand_genesis, magick_wand_terminus};
-
-mod types;
 use types::{Manifest, ProcessingResult};
 
 fn main() {
+    transforms::init();
+
     server::run(do_stuff);
-
-    magick_wand_genesis();
-
-    magick_wand_terminus();
 }
 
-fn do_stuff(_manifest: Manifest, blob: Vec<u8>) -> ProcessingResult {
-    ProcessingResult { image: blob }
+fn do_stuff(manifest: Manifest, blob: Vec<u8>) -> Result<ProcessingResult, &'static str> {
+    let images = transforms::run(&manifest, &blob)?;
+
+    Ok(ProcessingResult { images: images })
 }

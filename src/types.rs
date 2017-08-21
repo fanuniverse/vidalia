@@ -8,6 +8,7 @@ pub struct Manifest {
 pub enum Transform {
     #[serde(rename = "downsize")]
     Downsize {
+        name: String,
         width: usize
     },
     #[serde(rename = "webm")]
@@ -15,5 +16,10 @@ pub enum Transform {
 }
 
 pub struct ProcessingResult {
-    pub image: Vec<u8>
+    pub images: Vec<TransformedImage>
+}
+
+pub struct TransformedImage {
+    pub name: String,
+    pub blob: Vec<u8>
 }

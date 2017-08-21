@@ -11,7 +11,7 @@ use types::{Manifest, ProcessingResult};
 
 use serde_json::from_str as json_from_str;
 
-type ProcessingFn = fn(Manifest, Vec<u8>) -> ProcessingResult;
+type ProcessingFn = fn(Manifest, Vec<u8>) -> Result<ProcessingResult, &'static str>;
 
 pub fn run(processing_fn: ProcessingFn) {
     Iron::new(move |req: &mut Request| serve(req, processing_fn))
@@ -24,12 +24,10 @@ fn serve(req: &mut Request, processing_fn: ProcessingFn) -> IronResult<Response>
         Ok(data) => {
             match parse_multipart(data) {
                 Ok((manifest, blob)) => {
-                    let resp_buf = prepare_multipart(processing_fn(manifest, blob));
-
-                    match resp_buf {
-                        Ok(buf) => { Ok(Response::with((status::Ok, buf))) },
-                        Err(err) => { Ok(Response::with((status::InternalServerError, err))) }
-                    }
+                    Ok(processing_fn(manifest, blob)
+                        .and_then(|processed| prepare_multipart(processed))
+                        .map(|multipart| Response::with((status::Ok, multipart)))
+                        .unwrap_or_else(|err| Response::with((status::InternalServerError, err))))
                 }
                 Err(err) => {
                     Ok(Response::with((status::BadRequest, err)))
@@ -72,18 +70,17 @@ fn parse_multipart(mut data: Multipart<&mut Body>) -> Result<(Manifest, Vec<u8>)
 }
 
 fn prepare_multipart(result: ProcessingResult) -> Result<Vec<u8>, &'static str> {
-    let ProcessingResult { image } = result;
+    let mut multipart = MultipartOutbound::new();
 
-    let mut resp_multipart = MultipartOutbound::new();
-    resp_multipart.add_stream("image", &*image, None as Option<&str>, None);
+    for image in &result.images {
+        multipart.add_stream(image.name.to_owned(), &*image.blob, None as Option<&str>, None);
+    }
 
-    let res = resp_multipart.prepare();
-
-    match res {
+    match multipart.prepare() {
         Ok(mut fields) => {
-            let mut out_buf = Vec::new();
+            let mut buf = Vec::new();
 
-            if fields.read_to_end(&mut out_buf).is_ok() { Ok(out_buf) }
+            if fields.read_to_end(&mut buf).is_ok() { Ok(buf) }
             else { Err("Unable to export processing result as multipart data") }
         },
         _ => { Err("Unable to export processing result as multipart data") }
