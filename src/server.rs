@@ -4,6 +4,7 @@ use iron::status;
 use iron::request::Body;
 
 use multipart::server::{Multipart};
+use multipart::client::lazy::Multipart as MultipartOutbound;
 use std::io::{Read};
 
 use types::{Manifest, ProcessingResult};
@@ -23,9 +24,12 @@ fn serve(req: &mut Request, processing_fn: ProcessingFn) -> IronResult<Response>
         Ok(data) => {
             match parse_multipart(data) {
                 Ok((manifest, blob)) => {
-                    let ProcessingResult { image } = processing_fn(manifest, blob);
+                    let resp_buf = prepare_multipart(processing_fn(manifest, blob));
 
-                    Ok(Response::with((status::Ok, image)))
+                    match resp_buf {
+                        Ok(buf) => { Ok(Response::with((status::Ok, buf))) },
+                        Err(err) => { Ok(Response::with((status::InternalServerError, err))) }
+                    }
                 }
                 Err(err) => {
                     Ok(Response::with((status::BadRequest, err)))
@@ -65,4 +69,23 @@ fn parse_multipart(mut data: Multipart<&mut Body>) -> Result<(Manifest, Vec<u8>)
                 .ok_or("Request parameter (\"image\") is missing or malformed")
                 .map(|blob| (manifest, blob))
         })
+}
+
+fn prepare_multipart(result: ProcessingResult) -> Result<Vec<u8>, &'static str> {
+    let ProcessingResult { image } = result;
+
+    let mut resp_multipart = MultipartOutbound::new();
+    resp_multipart.add_stream("image", &*image, None as Option<&str>, None);
+
+    let res = resp_multipart.prepare();
+
+    match res {
+        Ok(mut fields) => {
+            let mut out_buf = Vec::new();
+
+            if fields.read_to_end(&mut out_buf).is_ok() { Ok(out_buf) }
+            else { Err("Unable to export processing result as multipart data") }
+        },
+        _ => { Err("Unable to export processing result as multipart data") }
+    }
 }
