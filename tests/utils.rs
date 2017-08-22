@@ -23,7 +23,7 @@ pub fn setup_client() -> reqwest::Client {
 #[macro_export]
 macro_rules! fixture_path {
     ($fixture_name:expr) => (
-        Path::new(env!("CARGO_MANIFEST_DIR"))
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("tests/fixtures")
             .join($fixture_name)
             .to_str().unwrap()

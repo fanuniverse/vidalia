@@ -1,12 +1,14 @@
 extern crate reqwest;
 extern crate multipart;
+extern crate magick_rust;
 
 use std::io::Read;
-use std::path::Path;
 
 use multipart::server::Multipart as MultipartInbound;
 
 static URL: &'static str = "http://localhost:3030";
+
+use magick_rust::MagickWand;
 
 #[macro_use]
 #[path = "utils.rs"]
@@ -24,7 +26,7 @@ fn it_downsizes_an_image() {
                 "transforms": [
                     { "kind": "downsize"
                     , "name": "thumbnail"
-                    , "width": 10 }
+                    , "width": 50 }
                 ]
             }
             "#)
@@ -43,5 +45,9 @@ fn it_downsizes_an_image() {
             }
         }).unwrap();
 
-    assert_ne!(vec![] as Vec<u8>, image_buf);
+    let wand = MagickWand::new();
+    wand.read_image_blob(&image_buf).unwrap();
+
+    assert_eq!(wand.get_image_width(), 50);
+    assert_eq!(wand.get_image_format().unwrap(), "JPEG");
 }
