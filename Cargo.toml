@@ -13,3 +13,7 @@ multipart = "0.13"
 [dependencies.magick_rust]
 git = "https://github.com/nlfiedler/magick-rust"
 branch = "magick-7"
+
+[dev-dependencies.reqwest]
+git = "https://github.com/seanmonstar/reqwest"
+branch = "multipart"
