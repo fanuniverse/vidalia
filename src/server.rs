@@ -73,24 +73,22 @@ fn parse_multipart(mut data: MultipartInbound<&mut Body>) -> Result<(Manifest, V
 fn prepare_multipart(result: ProcessingResult) -> Result<(ContentType, Vec<u8>), &'static str> {
     let mut multipart = MultipartOutbound::new();
 
-    for image in &result.images {
-        multipart.add_stream(image.name.to_owned(), &*image.blob, None as Option<&str>, None);
+    for transformed_image in &result.transformed {
+        multipart.add_stream(
+            transformed_image.name.to_owned(),
+            &*transformed_image.blob,
+            None as Option<&str>, /* filename */
+            None); /* content type (None = application/octet-stream) */
     }
 
     match multipart.prepare() {
         Ok(mut prepared) => {
-            let mut buf = Vec::new();
+            let content_type = format!("multipart/form-data; boundary={}", prepared.boundary());
+            let header = ContentType(content_type.parse().unwrap());
+            let mut body = Vec::new();
 
-            if prepared.read_to_end(&mut buf).is_ok() {
-                let header = ContentType(format!("multipart/form-data; boundary={}", prepared.boundary())
-                    .parse()
-                    .unwrap());
-
-                Ok((header, buf))
-            }
-            else {
-                Err("Unable to export processing result as multipart data")
-            }
+            if prepared.read_to_end(&mut body).is_ok() { Ok((header, body)) }
+            else { Err("Unable to export processing result as multipart data") }
         },
         _ => { Err("Unable to export processing result as multipart data") }
     }

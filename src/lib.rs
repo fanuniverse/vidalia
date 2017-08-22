@@ -20,7 +20,8 @@ pub fn run() {
 }
 
 fn process(manifest: Manifest, blob: Vec<u8>) -> Result<ProcessingResult, &'static str> {
-    let images = transforms::run(&manifest, &blob)?;
-
-    Ok(ProcessingResult { images: images })
+    Ok(ProcessingResult {
+        transformed: try!(transforms::run(&manifest, &blob)),
+        analyzed: None
+    })
 }
