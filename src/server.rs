@@ -1,9 +1,10 @@
 use iron::prelude::*;
 use iron::status;
-
 use iron::request::Body;
+use iron::headers::ContentType;
+use iron::modifiers::Header;
 
-use multipart::server::{Multipart};
+use multipart::server::Multipart as MultipartInbound;
 use multipart::client::lazy::Multipart as MultipartOutbound;
 use std::io::{Read};
 
@@ -20,13 +21,13 @@ pub fn run(processing_fn: ProcessingFn) {
 }
 
 fn serve(req: &mut Request, processing_fn: ProcessingFn) -> IronResult<Response> {
-    match Multipart::from_request(req) {
+    match MultipartInbound::from_request(req) {
         Ok(data) => {
             match parse_multipart(data) {
                 Ok((manifest, blob)) => {
                     Ok(processing_fn(manifest, blob)
                         .and_then(|processed| prepare_multipart(processed))
-                        .map(|multipart| Response::with((status::Ok, multipart)))
+                        .map(|(header, data)| Response::with((status::Ok, Header(header), data)))
                         .unwrap_or_else(|err| Response::with((status::InternalServerError, err))))
                 }
                 Err(err) => {
@@ -34,13 +35,13 @@ fn serve(req: &mut Request, processing_fn: ProcessingFn) -> IronResult<Response>
                 }
             }
         }
-        Err(_) => {
+        _ => {
             Ok(Response::with((status::BadRequest, "the request is not multipart")))
         }
     }
 }
 
-fn parse_multipart(mut data: Multipart<&mut Body>) -> Result<(Manifest, Vec<u8>), &'static str> {
+fn parse_multipart(mut data: MultipartInbound<&mut Body>) -> Result<(Manifest, Vec<u8>), &'static str> {
     let mut data_manifest = None;
     let mut data_image_blob = None;
 
@@ -69,7 +70,7 @@ fn parse_multipart(mut data: Multipart<&mut Body>) -> Result<(Manifest, Vec<u8>)
         })
 }
 
-fn prepare_multipart(result: ProcessingResult) -> Result<Vec<u8>, &'static str> {
+fn prepare_multipart(result: ProcessingResult) -> Result<(ContentType, Vec<u8>), &'static str> {
     let mut multipart = MultipartOutbound::new();
 
     for image in &result.images {
@@ -77,11 +78,19 @@ fn prepare_multipart(result: ProcessingResult) -> Result<Vec<u8>, &'static str> 
     }
 
     match multipart.prepare() {
-        Ok(mut fields) => {
+        Ok(mut prepared) => {
             let mut buf = Vec::new();
 
-            if fields.read_to_end(&mut buf).is_ok() { Ok(buf) }
-            else { Err("Unable to export processing result as multipart data") }
+            if prepared.read_to_end(&mut buf).is_ok() {
+                let header = ContentType(format!("multipart/form-data; boundary={}", prepared.boundary())
+                    .parse()
+                    .unwrap());
+
+                Ok((header, buf))
+            }
+            else {
+                Err("Unable to export processing result as multipart data")
+            }
         },
         _ => { Err("Unable to export processing result as multipart data") }
     }
