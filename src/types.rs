@@ -1,14 +1,11 @@
 #[derive(Deserialize, Debug)]
 pub struct Manifest {
-    #[serde(default = "default_analyzers")]
+    #[serde(default)]
     pub analyzers: Vec<String>,
 
-    #[serde(default = "default_transforms")]
+    #[serde(default)]
     pub transforms: Vec<Transform>
 }
-
-fn default_analyzers() -> Vec<String> { vec![] }
-fn default_transforms() -> Vec<Transform> { vec![] }
 
 #[derive(Deserialize, Debug)]
 #[serde(tag = "kind")]
@@ -23,7 +20,7 @@ pub enum Transform {
 }
 
 pub struct ProcessingResult {
-    pub analyzed: Option<AnalyzedImage>,
+    pub analyzed: AnalyzedImage,
     pub transformed: Vec<TransformedImage>
 }
 
@@ -32,7 +29,11 @@ pub struct TransformedImage {
     pub blob: Vec<u8>
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct AnalyzedImage {
-    pub width: Option<usize>
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub width: Option<usize>,
+
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub height: Option<usize>
 }

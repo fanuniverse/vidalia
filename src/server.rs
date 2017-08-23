@@ -11,6 +11,7 @@ use std::io::{Read};
 use types::{Manifest, ProcessingResult};
 
 use serde_json::from_str as json_from_str;
+use serde_json::to_string as json_to_string;
 
 type ProcessingFn = fn(Manifest, Vec<u8>) -> Result<ProcessingResult, &'static str>;
 
@@ -72,6 +73,10 @@ fn parse_multipart(mut data: MultipartInbound<&mut Body>) -> Result<(Manifest, V
 
 fn prepare_multipart(result: ProcessingResult) -> Result<(ContentType, Vec<u8>), &'static str> {
     let mut multipart = MultipartOutbound::new();
+
+    let analyzed = json_to_string(&result.analyzed)
+        .or(Err("Unable to serialize image analysis result"))?;
+    multipart.add_text("analyzed", analyzed);
 
     for transformed_image in &result.transformed {
         multipart.add_stream(

@@ -10,6 +10,7 @@ extern crate magick_rust;
 pub mod types;
 mod server;
 mod transforms;
+mod analyzers;
 
 use types::{Manifest, ProcessingResult};
 
@@ -22,6 +23,6 @@ pub fn run() {
 fn process(manifest: Manifest, blob: Vec<u8>) -> Result<ProcessingResult, &'static str> {
     Ok(ProcessingResult {
         transformed: try!(transforms::run(&manifest, &blob)),
-        analyzed: None
+        analyzed: try!(analyzers::run(&manifest, &blob))
     })
 }
