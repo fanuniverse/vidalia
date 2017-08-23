@@ -519,7 +519,7 @@ dependencies = [
 [[package]]
 name = "magick_rust"
 version = "0.6.6"
-source = "git+https://github.com/nlfiedler/magick-rust?branch=magick-7#b748139e10039e86b5b86455f68af660e987326a"
+source = "git+https://github.com/nlfiedler/magick-rust?branch=magick-7#a1f211ad1f7e805ce826a224a0c5a032e380f59b"
 dependencies = [
  "bindgen 0.29.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.29 (registry+https://github.com/rust-lang/crates.io-index)",

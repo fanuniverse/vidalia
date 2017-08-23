@@ -43,3 +43,40 @@ fn it_analyzes_specified_properties() {
     }
     "#.replace("\n", "").replace(" ", ""))
 }
+
+#[test]
+fn it_correctly_identifies_gif_dimensions() {
+    let client = setup_client();
+
+    let response = client.post(vidalia_url!()).unwrap()
+        .multipart(reqwest::multipart::Form::new()
+            .text("manifest", r#"
+            {
+                "analyzers": [
+                    "width",
+                    "height"
+                ]
+            }
+            "#)
+            .file("image", fixture_path!("dimensions.gif"))
+            .unwrap()
+        )
+        .send().unwrap();
+
+    let mut analyzed = "".to_string();
+
+    MultipartInbound::from_request(&mut MultipartResponse(response))
+        .unwrap_or_else(|_| panic!("expected multipart response"))
+        .foreach_entry(|field| {
+            if let "analyzed" = field.name.as_str() {
+                analyzed = field.data.as_text().unwrap().to_owned();
+            }
+        }).unwrap();
+
+    assert_eq!(analyzed, r#"
+    {
+        "width": 604,
+        "height": 340
+    }
+    "#.replace("\n", "").replace(" ", ""))
+}
