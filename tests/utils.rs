@@ -21,6 +21,9 @@ pub fn setup_client() -> reqwest::Client {
 }
 
 #[macro_export]
+macro_rules! vidalia_url { () => { "http://localhost:3030" } }
+
+#[macro_export]
 macro_rules! fixture_path {
     ($fixture_name:expr) => (
         std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
