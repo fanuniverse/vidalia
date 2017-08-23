@@ -35,8 +35,7 @@ fn it_downsizes_an_image() {
 
     let mut image_buf = Vec::new();
 
-    MultipartInbound::from_request(&mut MultipartResponse(response))
-        .unwrap_or_else(|_| panic!("expected multipart response"))
+    MultipartInbound::from_request(&mut MultipartResponse(response)).expect("response is not multipart")
         .foreach_entry(|mut field| {
             if let "thumbnail" = field.name.as_str() {
                 field.data.as_file().unwrap().read_to_end(&mut image_buf).unwrap();

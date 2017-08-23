@@ -33,6 +33,7 @@ macro_rules! fixture_path {
     )
 }
 
+#[derive(Debug)]
 pub struct MultipartResponse(pub reqwest::Response);
 
 impl Read for MultipartResponse {

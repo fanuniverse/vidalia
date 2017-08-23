@@ -10,18 +10,12 @@ mod utils;
 use utils::{setup_client, MultipartResponse};
 
 #[test]
-fn it_analyzes_specified_properties() {
+fn it_analyzes_raster_images() {
     let client = setup_client();
 
     let response = client.post(vidalia_url!()).unwrap()
         .multipart(reqwest::multipart::Form::new()
-            .text("manifest", r#"
-            {
-                "analyzers": [
-                    "width"
-                ]
-            }
-            "#)
+            .text("manifest", "{}")
             .file("image", fixture_path!("small.jpg"))
             .unwrap()
         )
@@ -29,8 +23,7 @@ fn it_analyzes_specified_properties() {
 
     let mut analyzed = "".to_string();
 
-    MultipartInbound::from_request(&mut MultipartResponse(response))
-        .unwrap_or_else(|_| panic!("expected multipart response"))
+    MultipartInbound::from_request(&mut MultipartResponse(response)).expect("response is not multipart")
         .foreach_entry(|field| {
             if let "analyzed" = field.name.as_str() {
                 analyzed = field.data.as_text().unwrap().to_owned();
@@ -39,7 +32,8 @@ fn it_analyzes_specified_properties() {
 
     assert_eq!(analyzed, r#"
     {
-        "width": 200
+        "width": 200,
+        "height": 198
     }
     "#.replace("\n", "").replace(" ", ""))
 }
@@ -50,14 +44,7 @@ fn it_correctly_identifies_gif_dimensions() {
 
     let response = client.post(vidalia_url!()).unwrap()
         .multipart(reqwest::multipart::Form::new()
-            .text("manifest", r#"
-            {
-                "analyzers": [
-                    "width",
-                    "height"
-                ]
-            }
-            "#)
+            .text("manifest", "{}")
             .file("image", fixture_path!("dimensions.gif"))
             .unwrap()
         )
@@ -65,8 +52,7 @@ fn it_correctly_identifies_gif_dimensions() {
 
     let mut analyzed = "".to_string();
 
-    MultipartInbound::from_request(&mut MultipartResponse(response))
-        .unwrap_or_else(|_| panic!("expected multipart response"))
+    MultipartInbound::from_request(&mut MultipartResponse(response)).expect("response is not multipart")
         .foreach_entry(|field| {
             if let "analyzed" = field.name.as_str() {
                 analyzed = field.data.as_text().unwrap().to_owned();

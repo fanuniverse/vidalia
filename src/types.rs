@@ -1,9 +1,6 @@
 #[derive(Deserialize, Debug)]
 pub struct Manifest {
     #[serde(default)]
-    pub analyzers: Vec<String>,
-
-    #[serde(default)]
     pub transforms: Vec<Transform>
 }
 
@@ -29,11 +26,8 @@ pub struct TransformedImage {
     pub blob: Vec<u8>
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct AnalyzedImage {
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub width: Option<usize>,
-
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub height: Option<usize>
+    pub width: usize,
+    pub height: usize
 }
