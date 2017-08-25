@@ -6,6 +6,7 @@ extern crate serde_json;
 #[macro_use] extern crate serde_derive;
 
 extern crate magick_rust;
+extern crate img_hash;
 
 pub mod types;
 mod server;
