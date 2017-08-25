@@ -33,7 +33,8 @@ fn it_analyzes_raster_images() {
     assert_eq!(analyzed, r#"
     {
         "width": 200,
-        "height": 198
+        "height": 198,
+        "hash": "0010010110101011101011011011010110010111010100010101000101010001"
     }
     "#.replace("\n", "").replace(" ", ""))
 }
@@ -62,7 +63,8 @@ fn it_correctly_identifies_gif_dimensions() {
     assert_eq!(analyzed, r#"
     {
         "width": 604,
-        "height": 340
+        "height": 340,
+        "hash": "1000110110010101100001011000110111101101010001010110010101100101"
     }
     "#.replace("\n", "").replace(" ", ""))
 }

@@ -1,7 +1,7 @@
 mod hash;
 
-use types::{AnalyzedImage};
-use magick_rust::{MagickWand};
+use types::AnalyzedImage;
+use magick_rust::MagickWand;
 
 pub fn run(source: &Vec<u8>) -> Result<AnalyzedImage, &'static str> {
     let wand = MagickWand::new();
@@ -9,13 +9,12 @@ pub fn run(source: &Vec<u8>) -> Result<AnalyzedImage, &'static str> {
 
     let format = wand.get_image_format()?;
     let (width, height) = get_dimensions(wand, &format);
-
-    let hash_image = hash::MagickHashImage::new(source, &format, width, height)?;
-    let _ = hash_image.dct_hash();
+    let hash = hash::perceptual_hash(source)?;
 
     Ok(AnalyzedImage {
         width: width,
-        height: height
+        height: height,
+        hash: format!("{:064b}", hash)
     })
 }
 

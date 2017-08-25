@@ -9,7 +9,7 @@ serde_json = "1.0"
 serde_derive = "1.0"
 iron = "0.5.1"
 multipart = "0.13"
-img_hash = "2.0"
+stream-dct = "0.1"
 
 [dependencies.magick_rust]
 git = "https://github.com/little-bobby-tables/magick-rust"

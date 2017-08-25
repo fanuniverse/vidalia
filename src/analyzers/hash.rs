@@ -1,77 +1,48 @@
-use img_hash::{ImageHash, HashImage, HashType};
 use magick_rust::{MagickWand, FilterType, ColorspaceType};
+use stream_dct::dct_2d;
+use std::cmp::Ordering;
 
-#[derive(Debug)]
-pub struct MagickHashImage<'a> {
-    wand: MagickWand,
-    format: &'a str,
-    dimensions: (u32, u32)
-}
+/* Algorithm outline:
+ * http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
+ * Reference implementations:
+ * https://github.com/JohannesBuchner/imagehash
+ * https://github.com/abonander/img_hash */
+pub fn perceptual_hash(blob: &Vec<u8>) -> Result<u64, &'static str> {
+    let mut wand = MagickWand::new();
+    wand.read_image_blob(blob)?;
 
-impl<'a> MagickHashImage<'a> {
-    pub fn new(blob: &Vec<u8>, format: &'a str, width: usize, height: usize)
-            -> Result<MagickHashImage<'a>, &'static str> {
-        let mut wand = MagickWand::new();
-        wand.read_image_blob(blob)?;
-
-        if wand.get_image_format()? == "GIF" {
-            wand.set_iterator_index(0)?;
-        }
-
-        Ok(MagickHashImage {
-            wand: wand,
-            format: format,
-            dimensions: (width as u32, height as u32)
-        })
+    /* Hash the first frame of an animated image */
+    if wand.get_image_format()? == "GIF" {
+        wand.set_iterator_index(0)?;
     }
 
-    pub fn dct_hash(&self) -> String {
-        let hash = ImageHash::hash(self, 8, HashType::DCT);
-        format!("{:?}", hash.bitv)
-    }
-}
+    wand.transform_image_colorspace(ColorspaceType::GRAYColorspace);
+    wand.resize_image(32, 32, FilterType::LanczosFilter);
 
-impl<'a> HashImage for MagickHashImage<'a> {
-    type Grayscale = Self;
+    let pixels: Vec<f64> = wand.export_image_pixels(0, 0, 32, 32, "I")
+        .ok_or("Unable to export image pixels")?
+        .iter().map(|p| p.clone() as f64).collect();
 
-    fn dimensions(&self) -> (u32, u32) {
-        self.dimensions
-    }
+    let dct = dct_2d(&pixels[..], 32);
+    let dct_low_freq: Vec<f64> = dct.chunks(32).take(8) /* first 8 rows */
+        .flat_map(|row| row.iter().take(8)) /* first 8 columns */
+        .cloned().collect();
 
-    fn resize(&self, width: u32, height: u32) -> Self {
-        let resized_wand = self.wand.clone();
-        resized_wand.resize_image(width as usize, height as usize, FilterType::LanczosFilter);
+    let median = {
+        let mut low_freq_sorted = dct_low_freq.clone();
+        /* https://news.ycombinator.com/item?id=9089112 */
+        low_freq_sorted.sort_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Less));
 
-        Self {
-            wand: resized_wand,
-            format: self.format,
-            dimensions: (width, height)
-        }
-    }
+        (low_freq_sorted[(8 * 8 / 2) - 1] + low_freq_sorted[8 * 8 / 2]) / 2.0
+    };
 
-    fn grayscale(&self) -> Self {
-        let grayscale_wand = self.wand.clone();
-        grayscale_wand.transform_image_colorspace(ColorspaceType::GRAYColorspace);
+    let mut hash = 0u64;
+    let mut increment = 1u64;
 
-        Self {
-            wand: grayscale_wand,
-            format: self.format,
-            dimensions: self.dimensions
-        }
+    for freq in dct_low_freq {
+        if freq > median { hash = hash | increment; }
+        increment = increment << 1;
     }
 
-    fn to_bytes(self) -> Vec<u8> {
-        self.wand.export_image_pixels(0, 0,
-            self.dimensions.0 as usize, self.dimensions.1 as usize, "I").unwrap()
-    }
-
-    /* The following methods are not used for DCT hashing. */
-
-    fn channel_count() -> u8 {
-        panic!("channel_count is not implemented")
-    }
-
-    fn foreach_pixel<F>(&self, _: F) where F: FnMut(u32, u32, &[u8]) {
-        panic!("foreach_pixel is not implemented")
-    }
+    Ok(hash)
 }

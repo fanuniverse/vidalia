@@ -29,5 +29,6 @@ pub struct TransformedImage {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AnalyzedImage {
     pub width: usize,
-    pub height: usize
+    pub height: usize,
+    pub hash: String
 }
