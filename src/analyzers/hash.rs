@@ -1,6 +1,6 @@
 use magick_rust::{MagickWand, FilterType, ColorspaceType};
-use stream_dct::dct_2d;
 use std::cmp::Ordering;
+use rustdct::dct2::{DCT2, DCT2SplitRadix};
 
 /* Algorithm outline:
  * http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
@@ -19,12 +19,12 @@ pub fn perceptual_hash(blob: &Vec<u8>) -> Result<u64, &'static str> {
     wand.transform_image_colorspace(ColorspaceType::GRAYColorspace);
     wand.resize_image(32, 32, FilterType::LanczosFilter);
 
-    let pixels: Vec<f64> = wand.export_image_pixels(0, 0, 32, 32, "I")
+    let pixels: Vec<f32> = wand.export_image_pixels(0, 0, 32, 32, "I")
         .ok_or("Unable to export image pixels")?
-        .iter().map(|p| p.clone() as f64).collect();
+        .iter().map(|p| p.clone() as f32).collect();
 
-    let dct = dct_2d(&pixels[..], 32);
-    let dct_low_freq: Vec<f64> = dct.chunks(32).take(8) /* first 8 rows */
+    let dct = dct_2d(pixels, 32);
+    let dct_low_freq: Vec<f32> = dct.chunks(32).take(8) /* first 8 rows */
         .flat_map(|row| row.iter().take(8)) /* first 8 columns */
         .cloned().collect();
 
@@ -45,4 +45,41 @@ pub fn perceptual_hash(blob: &Vec<u8>) -> Result<u64, &'static str> {
     }
 
     Ok(hash)
+}
+
+fn dct_2d(m: Vec<f32>, stride: usize) -> Vec<f32> {
+    assert!(stride.is_power_of_two());
+    let mut dct = DCT2SplitRadix::new(stride);
+
+    let mut rows: Vec<f32> = Vec::with_capacity(stride * stride);
+
+    for row in m.chunks(stride) {
+        let mut row_in = row.to_owned();
+        let mut row_out = vec![0f32; stride];
+        dct.process(&mut row_in, &mut row_out);
+        rows.append(&mut row_out);
+    };
+
+    transpose(rows.as_mut_slice(), stride);
+
+    let mut columns: Vec<f32> = Vec::with_capacity(stride * stride);
+
+    for column in rows.chunks(stride) {
+        let mut column_in = column.to_owned();
+        let mut column_out = vec![0f32; stride];
+        dct.process(&mut column_in, &mut column_out);
+        columns.append(&mut column_out);
+    }
+
+    transpose(columns.as_mut_slice(), stride);
+
+    columns
+}
+
+fn transpose(m: &mut [f32], stride: usize) {
+    for y in 0..stride {
+        for x in 0..y {
+            m.swap(y * stride + x, x * stride + y);
+        }
+    }
 }

@@ -6,7 +6,7 @@ extern crate serde_json;
 #[macro_use] extern crate serde_derive;
 
 extern crate magick_rust;
-extern crate stream_dct;
+extern crate rustdct;
 
 pub mod types;
 mod server;
