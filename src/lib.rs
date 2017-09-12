@@ -7,6 +7,7 @@ extern crate serde_json;
 
 extern crate magick_rust;
 extern crate rustdct;
+extern crate rand;
 
 pub mod types;
 mod server;

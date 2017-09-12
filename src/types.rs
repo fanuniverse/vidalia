@@ -12,8 +12,12 @@ pub enum Transform {
         name: String,
         width: usize
     },
-    #[serde(rename = "webm")]
-    WebM
+    #[serde(rename = "gif_to_h264")]
+    GifToH264 {
+        name: String,
+        crf: u8,
+        preset: String
+    }
 }
 
 pub struct ProcessingResult {

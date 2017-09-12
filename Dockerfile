@@ -16,7 +16,7 @@ RUN curl -O https://www.imagemagick.org/download/ImageMagick.tar.gz \
  && cd .. \
  && rm -r ImageMagick-7.0*
 
-RUN apt-get install -y clang
+RUN apt-get install -y clang libavfilter-dev
 
 RUN adduser --disabled-password --gecos '' vidalia
 

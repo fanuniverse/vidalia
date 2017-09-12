@@ -1,4 +1,5 @@
 mod downsize;
+mod ffmpeg;
 
 use types::{Manifest, Transform, TransformedImage};
 use magick_rust;
@@ -12,6 +13,10 @@ pub fn run(manifest: &Manifest, source: &Vec<u8>) -> Result<Vec<TransformedImage
         match t {
             &Transform::Downsize { ref name, ref width } => {
                 downsize::transform(source, *width)
+                    .map(|blob| TransformedImage { name: name.to_owned(), blob: blob })
+            },
+            &Transform::GifToH264 { ref name, ref crf, ref preset } => {
+                ffmpeg::gif_to_h264(source, *crf, preset.as_str())
                     .map(|blob| TransformedImage { name: name.to_owned(), blob: blob })
             },
             _ => {
