@@ -17,6 +17,12 @@ pub enum Transform {
         name: String,
         crf: u8,
         preset: String
+    },
+    #[serde(rename = "gif_to_webm")]
+    GifToWebM {
+        name: String,
+        crf: u8,
+        bitrate: u16
     }
 }
 

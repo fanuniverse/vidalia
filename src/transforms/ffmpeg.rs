@@ -13,6 +13,17 @@ pub fn gif_to_h264(source: &Vec<u8>, crf: u8, preset: &str) -> Result<Vec<u8>, &
                  "-vf",       "scale=trunc(iw/2)*2:trunc(ih/2)*2"])
 }
 
+/* Performs constrained quality conversion, https://trac.ffmpeg.org/wiki/Encode/VP9#constrainedq */
+pub fn gif_to_webm(source: &Vec<u8>, crf: u8, bitrate: u16) -> Result<Vec<u8>, &'static str> {
+    run_ffmpeg(source, "gif", "webm",
+               &["-crf",           &crf.to_string(),
+                "-pix_fmt",        "yuv420p",
+                "-c:v",            "libvpx-vp9",
+                "-b:v",            &format!("{}K", bitrate),
+                "-tile-columns",   "6",
+                "-frame-parallel", "1"])
+}
+
 fn run_ffmpeg(source: &Vec<u8>, in_ext: &str, out_ext: &str, args: &[&str]) -> Result<Vec<u8>, &'static str> {
     let in_path = format!("/tmp/in-{}.{}", random_file_name(), in_ext);
     let out_path = format!("/tmp/out-{}.{}", random_file_name(), out_ext);

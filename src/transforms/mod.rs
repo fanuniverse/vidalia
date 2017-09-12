@@ -19,8 +19,9 @@ pub fn run(manifest: &Manifest, source: &Vec<u8>) -> Result<Vec<TransformedImage
                 ffmpeg::gif_to_h264(source, *crf, preset.as_str())
                     .map(|blob| TransformedImage { name: name.to_owned(), blob: blob })
             },
-            _ => {
-                Ok(TransformedImage { name: "unknown".to_string(), blob: vec![] })
+            &Transform::GifToWebM { ref name, ref crf, ref bitrate } => {
+                ffmpeg::gif_to_webm(source, *crf, *bitrate)
+                    .map(|blob| TransformedImage { name: name.to_owned(), blob: blob })
             }
         }
     }).collect()
