@@ -21,3 +21,11 @@ branch = "color-funcs"
 [dev-dependencies.reqwest]
 git = "https://github.com/seanmonstar/reqwest"
 branch = "master"
+
+[profile.release]
+opt-level = 3
+lto = true
+rpath = false
+debug = false
+debug-assertions = false
+codegen-units = 1
