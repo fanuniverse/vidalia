@@ -19,6 +19,8 @@ RUN curl https://www.imagemagick.org/download/ImageMagick-${MAGICK_VERSION}.tar.
  && cd .. \
  && rm -r ImageMagick-${MAGICK_VERSION}
 
+RUN ldconfig
+
 WORKDIR /usr/src/vidalia
 
 # docker build --build-arg release=1 --target dev
