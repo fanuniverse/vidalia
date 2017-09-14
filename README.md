@@ -13,7 +13,7 @@ See *tests/* for supported transformations and usage examples.
 
 The image is available at [littlebobbytables/vidalia](https://hub.docker.com/r/littlebobbytables/vidalia/).
 
-it is recommended that you pull a specific version tag;
+It is recommended that you pull a specific version tag;
 *latest* follows the *master* branch, which may not always be stable.
 
 ## Credits
