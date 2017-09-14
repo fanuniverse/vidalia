@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+docker build --build-arg release=1 -t littlebobbytables/vidalia .
