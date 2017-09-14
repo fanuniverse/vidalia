@@ -9,6 +9,13 @@ multipart requests with the following parameters:
 
 See *tests/* for supported transformations and usage examples.
 
+## Docker
+
+The image is available at [littlebobbytables/vidalia](https://hub.docker.com/r/littlebobbytables/vidalia/).
+
+it is recommended that you pull a specific version tag;
+*latest* follows the *master* branch, which may not always be stable.
+
 ## Credits
 
 The idea of processing images in-memory has been suggested by
