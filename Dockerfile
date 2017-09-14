@@ -1,4 +1,4 @@
-# docker build --target dev
+# docker build --target dev --build-arg release=0
 
 FROM rust:1.19.0-stretch AS dev
 
@@ -23,13 +23,13 @@ RUN ldconfig
 
 WORKDIR /usr/src/vidalia
 
-# docker build --build-arg release=1 --target dev
+# docker build --target dev
 
-ARG release=0
+ARG release=1
 
 COPY . /usr/src/vidalia
 
-RUN adduser --disabled-password --gecos '' vidalia; chown -R vidalia .;
+RUN adduser --disabled-password --gecos '' vidalia; chown -R vidalia .
 
 USER vidalia
 
@@ -37,7 +37,7 @@ ENV USER vidalia
 
 RUN bash -c '[[ ${release} -eq "0" ]] || cargo build --release'
 
-# docker build --build-arg release=1
+# docker build
 
 FROM debian:stretch-slim AS release
 

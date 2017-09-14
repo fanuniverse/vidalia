@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
-docker build --target dev -t vidalia-dev - < Dockerfile
+docker build --target dev --build-arg release=0 -t vidalia-dev - < Dockerfile
 docker run --rm -it -v "$(pwd)":/usr/src/vidalia -p 3030:3030 vidalia-dev /bin/bash
