@@ -7,8 +7,8 @@ pub struct Manifest {
 #[derive(Deserialize, Debug)]
 #[serde(tag = "kind")]
 pub enum Transform {
-    #[serde(rename = "fit_width")]
-    FitWidth {
+    #[serde(rename = "downsize_to_width")]
+    DownsizeToWidth {
         name: String,
         width: usize
     },

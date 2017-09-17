@@ -14,7 +14,7 @@ mod utils;
 use utils::{setup_client, MultipartResponse};
 
 #[test]
-fn it_downsizes_an_image() {
+fn it_downsizes_images_larger_than_target() {
     let client = setup_client();
 
     let response = client.post(vidalia_url!()).unwrap()
@@ -22,7 +22,7 @@ fn it_downsizes_an_image() {
             .text("manifest", r#"
             {
                 "transforms": [
-                    { "kind": "fit_width"
+                    { "kind": "downsize_to_width"
                     , "name": "thumbnail"
                     , "width": 50 }
                 ]
@@ -50,6 +50,39 @@ fn it_downsizes_an_image() {
 }
 
 #[test]
+fn it_does_not_resize_images_smaller_than_target() {
+    let client = setup_client();
+
+    let response = client.post(vidalia_url!()).unwrap()
+        .multipart(reqwest::multipart::Form::new()
+            .text("manifest", r#"
+            {
+                "transforms": [
+                    { "kind": "downsize_to_width"
+                    , "name": "thumbnail"
+                    , "width": 200 }
+                ]
+            }
+            "#)
+            .file("image", fixture_path!("small.jpg"))
+            .unwrap()
+        )
+        .send().unwrap();
+
+    let mut image_buf = vec![0]; /* Distinguish uninitialized vector from the empty response we expect */
+
+    MultipartInbound::from_request(&mut MultipartResponse(response)).expect("response is not multipart")
+        .foreach_entry(|mut field| {
+            if let "thumbnail" = field.name.as_str() {
+                image_buf = Vec::new();
+                field.data.as_file().unwrap().read_to_end(&mut image_buf).unwrap();
+            }
+        }).unwrap();
+
+    assert_eq!(image_buf, vec![] as Vec<u8>);
+}
+
+#[test]
 fn it_downsizes_portrait_images() {
     let client = setup_client();
 
@@ -58,7 +91,7 @@ fn it_downsizes_portrait_images() {
             .text("manifest", r#"
             {
                 "transforms": [
-                    { "kind": "fit_width"
+                    { "kind": "downsize_to_width"
                     , "name": "thumbnail"
                     , "width": 300 }
                 ]
