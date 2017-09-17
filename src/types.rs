@@ -23,6 +23,11 @@ pub enum Transform {
         name: String,
         crf: u8,
         bitrate: u16
+    },
+    #[serde(rename = "gif_first_frame_jpeg")]
+    GifFirstFrameJpeg {
+        name: String,
+        quality: u8
     }
 }
 

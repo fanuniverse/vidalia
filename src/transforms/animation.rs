@@ -2,6 +2,7 @@ use std::process::Command;
 use std::io::{Read, Write};
 use std::fs::{File, remove_file};
 use rand::{Rng, thread_rng};
+use magick_rust::MagickWand;
 
 pub fn gif_to_h264(source: &Vec<u8>, crf: u8, preset: &str) -> Result<Vec<u8>, &'static str> {
     run_ffmpeg(source, "gif", "mp4",
@@ -22,6 +23,16 @@ pub fn gif_to_webm(source: &Vec<u8>, crf: u8, bitrate: u16) -> Result<Vec<u8>, &
                 "-b:v",            &format!("{}K", bitrate),
                 "-tile-columns",   "6",
                 "-frame-parallel", "1"])
+}
+
+pub fn gif_first_frame_jpeg(source: &Vec<u8>, quality: u8) -> Result<Vec<u8>, &'static str> {
+    let mut wand = MagickWand::new();
+    wand.read_image_blob(source)?;
+
+    wand.set_iterator_index(0)?;
+    wand.set_image_compression_quality(quality as usize)?;
+
+    wand.write_image_blob("JPEG")
 }
 
 fn run_ffmpeg(source: &Vec<u8>, in_ext: &str, out_ext: &str, args: &[&str]) -> Result<Vec<u8>, &'static str> {

@@ -99,3 +99,31 @@ stream.0.width=604
 stream.0.height=340
 "#);
 }
+
+#[test]
+fn it_extracts_the_first_frame_of_a_gif() {
+    let response = server_response!(r#"
+        {
+            "transforms": [
+                { "kind":    "gif_first_frame_jpeg"
+                , "name":    "poster"
+                , "quality": 80 }
+            ]
+        }
+        "#, "dimensions.gif");
+
+    let mut expected_buf = Vec::new();
+    File::open(fixture_path!("dimensions_first_frame.jpg"))
+        .and_then(|mut f| f.read_to_end(&mut expected_buf)).unwrap();
+
+    let mut actual_buf = Vec::new();
+
+    MultipartInbound::from_request(&mut MultipartResponse(response)).expect("response is not multipart")
+        .foreach_entry(|mut field| {
+            if let "poster" = field.name.as_str() {
+                field.data.as_file().unwrap().read_to_end(&mut actual_buf).unwrap();
+            }
+        }).unwrap();
+
+    assert!(actual_buf == expected_buf);
+}

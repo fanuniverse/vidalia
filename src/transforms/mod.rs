@@ -1,5 +1,5 @@
 mod downsize_to_width;
-mod ffmpeg;
+mod animation;
 
 use types::{Manifest, Transform, TransformedImage};
 use magick_rust;
@@ -16,11 +16,15 @@ pub fn run(manifest: &Manifest, source: &Vec<u8>) -> Result<Vec<TransformedImage
                     .map(|blob| TransformedImage { name: name.to_owned(), blob: blob })
             },
             &Transform::GifToH264 { ref name, ref crf, ref preset } => {
-                ffmpeg::gif_to_h264(source, *crf, preset.as_str())
+                animation::gif_to_h264(source, *crf, preset.as_str())
                     .map(|blob| TransformedImage { name: name.to_owned(), blob: blob })
             },
             &Transform::GifToWebM { ref name, ref crf, ref bitrate } => {
-                ffmpeg::gif_to_webm(source, *crf, *bitrate)
+                animation::gif_to_webm(source, *crf, *bitrate)
+                    .map(|blob| TransformedImage { name: name.to_owned(), blob: blob })
+            },
+            &Transform::GifFirstFrameJpeg { ref name, ref quality } => {
+                 animation::gif_first_frame_jpeg(source, *quality)
                     .map(|blob| TransformedImage { name: name.to_owned(), blob: blob })
             }
         }
