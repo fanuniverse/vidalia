@@ -1,6 +1,6 @@
 [root]
 name = "vidalia"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "iron 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "magick_rust 0.6.6 (git+https://github.com/little-bobby-tables/magick-rust?branch=color-funcs)",
