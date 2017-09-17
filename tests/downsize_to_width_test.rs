@@ -15,23 +15,15 @@ use utils::{setup_client, MultipartResponse};
 
 #[test]
 fn it_downsizes_images_larger_than_target() {
-    let client = setup_client();
-
-    let response = client.post(vidalia_url!()).unwrap()
-        .multipart(reqwest::multipart::Form::new()
-            .text("manifest", r#"
-            {
-                "transforms": [
-                    { "kind": "downsize_to_width"
-                    , "name": "thumbnail"
-                    , "width": 50 }
-                ]
-            }
-            "#)
-            .file("image", fixture_path!("small.jpg"))
-            .unwrap()
-        )
-        .send().unwrap();
+    let response = server_response!(r#"
+        {
+            "transforms": [
+                { "kind": "downsize_to_width"
+                , "name": "thumbnail"
+                , "width": 50 }
+            ]
+        }
+        "#, "small.jpg");
 
     let mut image_buf = Vec::new();
 
@@ -51,23 +43,15 @@ fn it_downsizes_images_larger_than_target() {
 
 #[test]
 fn it_does_not_resize_images_smaller_than_target() {
-    let client = setup_client();
-
-    let response = client.post(vidalia_url!()).unwrap()
-        .multipart(reqwest::multipart::Form::new()
-            .text("manifest", r#"
-            {
-                "transforms": [
-                    { "kind": "downsize_to_width"
-                    , "name": "thumbnail"
-                    , "width": 200 }
-                ]
-            }
-            "#)
-            .file("image", fixture_path!("small.jpg"))
-            .unwrap()
-        )
-        .send().unwrap();
+    let response = server_response!(r#"
+        {
+            "transforms": [
+                { "kind": "downsize_to_width"
+                , "name": "thumbnail"
+                , "width": 200 }
+            ]
+        }
+        "#, "small.jpg");
 
     let mut image_buf = vec![0]; /* Distinguish uninitialized vector from the empty response we expect */
 
@@ -84,23 +68,15 @@ fn it_does_not_resize_images_smaller_than_target() {
 
 #[test]
 fn it_downsizes_portrait_images() {
-    let client = setup_client();
-
-    let response = client.post(vidalia_url!()).unwrap()
-        .multipart(reqwest::multipart::Form::new()
-            .text("manifest", r#"
-            {
-                "transforms": [
-                    { "kind": "downsize_to_width"
-                    , "name": "thumbnail"
-                    , "width": 300 }
-                ]
-            }
-            "#)
-            .file("image", fixture_path!("tall.png"))
-            .unwrap()
-        )
-        .send().unwrap();
+    let response = server_response!(r#"
+        {
+            "transforms": [
+                { "kind": "downsize_to_width"
+                , "name": "thumbnail"
+                , "width": 300 }
+            ]
+        }
+        "#, "tall.png");
 
     let mut image_buf = Vec::new();
 

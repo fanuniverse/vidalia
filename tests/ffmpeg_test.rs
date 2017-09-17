@@ -16,24 +16,16 @@ use utils::{setup_client, MultipartResponse};
 
 #[test]
 fn it_generates_h264() {
-    let client = setup_client();
-
-    let response = client.post(vidalia_url!()).unwrap()
-        .multipart(reqwest::multipart::Form::new()
-            .text("manifest", r#"
-            {
-                "transforms": [
-                    { "kind": "gif_to_h264"
-                    , "name": "h264"
-                    , "crf":  22
-                    , "preset": "fast" }
-                ]
-            }
-            "#)
-            .file("image", fixture_path!("dimensions.gif"))
-            .unwrap()
-        )
-        .send().unwrap();
+    let response = server_response!(r#"
+        {
+            "transforms": [
+                { "kind": "gif_to_h264"
+                , "name": "h264"
+                , "crf":  22
+                , "preset": "fast" }
+            ]
+        }
+        "#, "dimensions.gif");
 
     let mut image_buf = Vec::new();
 
@@ -67,24 +59,16 @@ stream.0.height=340
 
 #[test]
 fn it_generates_webm() {
-    let client = setup_client();
-
-    let response = client.post(vidalia_url!()).unwrap()
-        .multipart(reqwest::multipart::Form::new()
-            .text("manifest", r#"
-            {
-                "transforms": [
-                    { "kind":    "gif_to_webm"
-                    , "name":    "webm"
-                    , "crf":     22
-                    , "bitrate": 1200 }
-                ]
-            }
-            "#)
-            .file("image", fixture_path!("dimensions.gif"))
-            .unwrap()
-        )
-        .send().unwrap();
+    let response = server_response!(r#"
+        {
+            "transforms": [
+                { "kind":    "gif_to_webm"
+                , "name":    "webm"
+                , "crf":     22
+                , "bitrate": 1200 }
+            ]
+        }
+        "#, "dimensions.gif");
 
     let mut image_buf = Vec::new();
 

@@ -33,6 +33,19 @@ macro_rules! fixture_path {
     )
 }
 
+#[macro_export]
+macro_rules! server_response {
+    ($manifest:expr, $fixture_name:expr) => {
+        setup_client()
+            .post(vidalia_url!()).unwrap()
+            .multipart(reqwest::multipart::Form::new()
+                .text("manifest", $manifest)
+                .file("image", fixture_path!($fixture_name)).unwrap()
+            )
+            .send().unwrap();
+    }
+}
+
 #[derive(Debug)]
 pub struct MultipartResponse(pub reqwest::Response);
 

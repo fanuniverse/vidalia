@@ -11,15 +11,7 @@ use utils::{setup_client, MultipartResponse};
 
 #[test]
 fn it_analyzes_raster_images() {
-    let client = setup_client();
-
-    let response = client.post(vidalia_url!()).unwrap()
-        .multipart(reqwest::multipart::Form::new()
-            .text("manifest", "{}")
-            .file("image", fixture_path!("small.jpg"))
-            .unwrap()
-        )
-        .send().unwrap();
+    let response = server_response!("{}", "small.jpg");
 
     let mut analyzed = "".to_string();
 
@@ -41,15 +33,7 @@ fn it_analyzes_raster_images() {
 
 #[test]
 fn it_correctly_identifies_gif_dimensions() {
-    let client = setup_client();
-
-    let response = client.post(vidalia_url!()).unwrap()
-        .multipart(reqwest::multipart::Form::new()
-            .text("manifest", "{}")
-            .file("image", fixture_path!("dimensions.gif"))
-            .unwrap()
-        )
-        .send().unwrap();
+    let response = server_response!("{}", "dimensions.gif");
 
     let mut analyzed = "".to_string();
 
