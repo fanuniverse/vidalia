@@ -1,6 +1,8 @@
 use magick_rust::{MagickWand, FilterType, ColorspaceType};
 use std::cmp::Ordering;
+use std::sync::Arc;
 use rustdct::dct2::{DCT2, DCT2SplitRadix};
+use rustdct::dct2::dct2_butterflies::{DCT2Butterfly8, DCT2Butterfly16};
 
 /* Algorithm outline:
  * http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
@@ -23,7 +25,7 @@ pub fn perceptual_hash(blob: &Vec<u8>) -> Result<u64, &'static str> {
         .ok_or("Unable to export image pixels")?
         .iter().map(|p| p.clone() as f32).collect();
 
-    let dct = dct_2d(pixels, 32);
+    let dct = dct_2d_32(pixels);
     let dct_low_freq: Vec<f32> = dct.chunks(32).take(8) /* first 8 rows */
         .flat_map(|row| row.iter().take(8)) /* first 8 columns */
         .cloned().collect();
@@ -47,31 +49,35 @@ pub fn perceptual_hash(blob: &Vec<u8>) -> Result<u64, &'static str> {
     Ok(hash)
 }
 
-fn dct_2d(m: Vec<f32>, stride: usize) -> Vec<f32> {
-    assert!(stride.is_power_of_two());
-    let mut dct = DCT2SplitRadix::new(stride);
+fn dct_2d_32(m: Vec<f32>) -> Vec<f32> {
+    const STRIDE: usize = 32;
+    assert!(m.len() == STRIDE * STRIDE);
 
-    let mut rows: Vec<f32> = Vec::with_capacity(stride * stride);
+    let quater_dct = Arc::new(DCT2Butterfly8::new()) as Arc<DCT2<f32>>;
+    let half_dct = Arc::new(DCT2Butterfly16::new()) as Arc<DCT2<f32>>;
+    let dct = DCT2SplitRadix::new(half_dct, quater_dct);
 
-    for row in m.chunks(stride) {
+    let mut rows: Vec<f32> = Vec::with_capacity(STRIDE * STRIDE);
+
+    for row in m.chunks(STRIDE) {
         let mut row_in = row.to_owned();
-        let mut row_out = vec![0f32; stride];
+        let mut row_out = vec![0f32; STRIDE];
         dct.process(&mut row_in, &mut row_out);
         rows.append(&mut row_out);
     };
 
-    transpose(rows.as_mut_slice(), stride);
+    transpose(rows.as_mut_slice(), STRIDE);
 
-    let mut columns: Vec<f32> = Vec::with_capacity(stride * stride);
+    let mut columns: Vec<f32> = Vec::with_capacity(STRIDE * STRIDE);
 
-    for column in rows.chunks(stride) {
+    for column in rows.chunks(STRIDE) {
         let mut column_in = column.to_owned();
-        let mut column_out = vec![0f32; stride];
+        let mut column_out = vec![0f32; STRIDE];
         dct.process(&mut column_in, &mut column_out);
         columns.append(&mut column_out);
     }
 
-    transpose(columns.as_mut_slice(), stride);
+    transpose(columns.as_mut_slice(), STRIDE);
 
     columns
 }

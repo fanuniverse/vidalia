@@ -1,6 +1,6 @@
 # docker build --target dev --build-arg release=0
 
-FROM rust:1.19.0-stretch AS dev
+FROM rust:1.22.1-stretch AS dev
 
 RUN apt-get update \
  && apt-get -y install git curl build-essential clang pkg-config \
@@ -9,7 +9,7 @@ libavformat-dev libavcodec-dev libavfilter-dev libswscale-dev ffmpeg \
 libmagic-dev \
  && rm -rfv /var/lib/apt/lists/*
 
-ENV MAGICK_VERSION 7.0.7-3
+ENV MAGICK_VERSION 7.0.7-18
 
 RUN curl https://www.imagemagick.org/download/ImageMagick-${MAGICK_VERSION}.tar.gz | tar xz \
  && cd ImageMagick-${MAGICK_VERSION} \

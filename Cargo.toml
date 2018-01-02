@@ -1,6 +1,6 @@
 [package]
 name = "vidalia"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["little-bobby-tables"]
 
 [dependencies]

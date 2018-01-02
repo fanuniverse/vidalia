@@ -17,7 +17,7 @@ pub fn setup_client() -> reqwest::Client {
         thread::spawn(vidalia::run);
     });
 
-    reqwest::Client::new().unwrap()
+    reqwest::Client::new()
 }
 
 #[macro_export]
@@ -37,7 +37,7 @@ macro_rules! fixture_path {
 macro_rules! server_response {
     ($manifest:expr, $fixture_name:expr) => {
         setup_client()
-            .post(vidalia_url!()).unwrap()
+            .post(vidalia_url!())
             .multipart(reqwest::multipart::Form::new()
                 .text("manifest", $manifest)
                 .file("image", fixture_path!($fixture_name)).unwrap()
